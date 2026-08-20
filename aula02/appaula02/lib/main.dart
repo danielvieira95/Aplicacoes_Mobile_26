@@ -172,49 +172,49 @@ class _TelaAppState extends State<TelaApp> {
                 SizedBox(
                   height: 8,
                 ),
-                Expanded(
-                    child: _nomes.isEmpty
-                        ? Center(
-                            child: Text('Sem nomes salvos'),
-                          )
-                        : ListView.separated(
-                            itemCount:
-                                _nomes.length, // comprimento da lista de nomes
-                            separatorBuilder: (_, __) => Divider(
-                                  height: 1,
-                                ),
-                            itemBuilder: (context, i) {
-                              final nome = _nomes[i];
-                              return Dismissible(
-                                key: ValueKey(nome),
-                                background: Container(
-                                  alignment: Alignment.centerLeft,
-                                  child: Icon(Icons.delete),
-                                ),
-                                secondaryBackground: Container(
-                                  alignment: Alignment.centerRight,
-                                  padding: EdgeInsets.symmetric(horizontal: 16),
-                                  child: Icon(Icons.delete),
-                                ),
-                                onDismissed: (__) => _removerNome(nome),
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    child: Text(nome.isNotEmpty
-                                        ? nome[0].toUpperCase()
-                                        : '?'),
-                                  ),
-                                  title: Text(nome),
-                                  trailing: IconButton(
-                                      onPressed: () => _removerNome(nome),
-                                      icon: Icon(Icons.delete)),
-                                ),
-                              );
-                            })),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text('Total ${_nomes.length}'),
-                )
               ],
+            ),
+            Expanded(
+                child: _nomes.isEmpty
+                    ? Center(
+                        child: Text('Sem nomes salvos'),
+                      )
+                    : ListView.separated(
+                        itemCount:
+                            _nomes.length, // comprimento da lista de nomes
+                        separatorBuilder: (_, __) => Divider(
+                              height: 1,
+                            ),
+                        itemBuilder: (context, i) {
+                          final nome = _nomes[i];
+                          return Dismissible(
+                            key: ValueKey(nome),
+                            background: Container(
+                              alignment: Alignment.centerLeft,
+                              child: Icon(Icons.delete),
+                            ),
+                            secondaryBackground: Container(
+                              alignment: Alignment.centerRight,
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Icon(Icons.delete),
+                            ),
+                            onDismissed: (__) => _removerNome(nome),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                child: Text(nome.isNotEmpty
+                                    ? nome[0].toUpperCase()
+                                    : '?'),
+                              ),
+                              title: Text(nome),
+                              trailing: IconButton(
+                                  onPressed: () => _removerNome(nome),
+                                  icon: Icon(Icons.delete)),
+                            ),
+                          );
+                        })),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text('Total ${_nomes.length}'),
             )
           ],
         ),
