@@ -172,6 +172,14 @@ class _TelaAppState extends State<TelaApp> {
                 SizedBox(
                   height: 8,
                 ),
+                Expanded(
+                    child: OutlinedButton.icon(
+                        onPressed: _limparTudo,
+                        icon: Icon(Icons.delete),
+                        label: Text('Limpar tudo'))),
+                SizedBox(
+                  height: 8,
+                ),
               ],
             ),
             Expanded(
