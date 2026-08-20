@@ -1,125 +1,224 @@
 import 'package:flutter/material.dart';
+// importando o pacote do shared preferences pacote responsavel por permitir a persistencia de dados
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(TelaHome());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+// Cria a classe chamada tela home
 
-  // This widget is the root of your application.
+class TelaHome extends StatelessWidget {
+  const TelaHome({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'Aula 02 App Sharedpreferences',
+      debugShowCheckedModeBanner: false,
+      home: TelaApp(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class TelaApp extends StatefulWidget {
+  const TelaApp({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<TelaApp> createState() => _TelaAppState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _TelaAppState extends State<TelaApp> {
+  // cria uma variavel para armazenar o que o usuario digita
 
-  void _incrementCounter() {
+  final _ctrlNome = TextEditingController();
+  String _nomeSalvo = ""; // Variavel para pegar informações no banco de dados
+  static const String _kUsernames = 'usernames';
+  bool _existeUsername = false;
+
+  // Cria uma lista para armazenar os nomes
+
+  List<String> _nomes = [];
+
+  // polimorfismo
+
+  @override
+
+  // função para recarregar automaticamente as informações
+  void initState() {
+    super.initState();
+    // implementar a função para carregar os dados
+
+    _carregarNome();
+  }
+
+  // Função para salvar o nome
+
+  Future<void> _salvarNome() async {
+    // faz a leitura do SharedPreferences
+
+    final prefs = await SharedPreferences.getInstance();
+    // cria uma variavel chamada nome
+    final nome = _ctrlNome.text
+        .trim(); // Trim função que remove os espaços em branco no texteditingcontroller
+    final atuais = prefs.getStringList(_kUsernames) ??
+        []; // armazena os nomes salvos na lista
+
+    // contains serve para verificar se o nome já está na lista
+
+    if (atuais.contains(nome)) {
+      _snack('Esse nome já está na lista');
+      return;
+    }
+
+    atuais.add(nome);
+    await prefs.setStringList(_kUsernames, atuais); // salva a informação
+    // atualiza a informação salva com setState
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _nomes = List<String>.from(atuais);
+      _ctrlNome.clear(); // limpa o campo texto
+
+      _snack('Nome salvo com sucesso');
     });
+  }
+
+  // Função para carregar os nomes no aplicativo
+
+  Future<void> _carregarNome() async {
+    // realiza a leitura do que está armazenado
+
+    final prefs = await SharedPreferences.getInstance();
+    setState(() => _nomes = prefs.getStringList(_kUsernames) ?? []);
+  }
+
+  // Função para remover um nome
+
+  Future<void> _removerNome(String nome) async {
+    final prefs = await SharedPreferences.getInstance();
+    final atuais = prefs.getStringList(_kUsernames) ?? [];
+    atuais.remove(nome);
+
+    await prefs.setStringList(_kUsernames, atuais);
+    setState(() {
+      _nomes = List<String>.from(atuais);
+      _snack('Removido $nome');
+    });
+  }
+
+  // Função limpar tudo
+
+  Future<void> _limparTudo() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kUsernames);
+    setState(() {
+      _nomes = [];
+    });
+  }
+
+  // criando a função snack
+
+  void _snack(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        backgroundColor: Colors.red,
+        title: Text('App aula 03 - SharedPreferences'),
+        centerTitle: true,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              'Digite um nome e salve localmente com o SharedPreferences',
+              style: TextStyle(fontSize: 16),
             ),
+            SizedBox(
+              height: 12,
+            ),
+            TextField(
+              controller: _ctrlNome,
+              decoration: InputDecoration(
+                  labelText: 'Nome', border: OutlineInputBorder()),
+              textInputAction:
+                  TextInputAction.done, // Ação do texto no textfield
+
+              onSubmitted: (_) => _salvarNome(),
+            ),
+            SizedBox(
+              height: 12,
+            ),
+            Row(
+              children: [
+                Expanded(
+                    child: FilledButton.icon(
+                  onPressed: _salvarNome,
+                  icon: Icon(Icons.save),
+                  label: Text('Salvar'),
+                )),
+                SizedBox(
+                  height: 8,
+                ),
+                Expanded(
+                    child: OutlinedButton.icon(
+                        onPressed: _carregarNome,
+                        icon: Icon(Icons.refresh),
+                        label: Text('Carregar'))),
+                SizedBox(
+                  height: 8,
+                ),
+                Expanded(
+                    child: _nomes.isEmpty
+                        ? Center(
+                            child: Text('Sem nomes salvos'),
+                          )
+                        : ListView.separated(
+                            itemCount:
+                                _nomes.length, // comprimento da lista de nomes
+                            separatorBuilder: (_, __) => Divider(
+                                  height: 1,
+                                ),
+                            itemBuilder: (context, i) {
+                              final nome = _nomes[i];
+                              return Dismissible(
+                                key: ValueKey(nome),
+                                background: Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: Icon(Icons.delete),
+                                ),
+                                secondaryBackground: Container(
+                                  alignment: Alignment.centerRight,
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  child: Icon(Icons.delete),
+                                ),
+                                onDismissed: (__) => _removerNome(nome),
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    child: Text(nome.isNotEmpty
+                                        ? nome[0].toUpperCase()
+                                        : '?'),
+                                  ),
+                                  title: Text(nome),
+                                  trailing: IconButton(
+                                      onPressed: () => _removerNome(nome),
+                                      icon: Icon(Icons.delete)),
+                                ),
+                              );
+                            })),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text('Total ${_nomes.length}'),
+                )
+              ],
+            )
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
