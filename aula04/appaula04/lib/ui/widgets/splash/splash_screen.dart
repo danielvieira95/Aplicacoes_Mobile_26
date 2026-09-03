@@ -1,6 +1,7 @@
 // importando a biblioteca flutter material.dart
 
 import 'package:appaula04/ui/_core/app_colors.dart';
+import 'package:appaula04/ui/widgets/home/home_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -38,7 +39,13 @@ class SplashScreen extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                            onPressed: () {}, child: Text('Bora')),
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomeScreen()));
+                            },
+                            child: Text('Bora')),
                       )
                     ],
                   )

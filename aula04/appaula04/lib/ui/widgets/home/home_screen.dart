@@ -1,15 +1,19 @@
-/*import 'package:appaula04/data/categories_data.dart';
+import 'package:appaula04/data/categories_data.dart';
+import 'package:appaula04/model/restaurant.dart';
 import 'package:appaula04/ui/_core/app_colors.dart';
+import 'package:appaula04/ui/widgets/home/widget/category_widget.dart';
 import 'package:appaula04/ui/widgets/home/widget/restaurant_widget.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
+  // RestaurantData
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     // RestaurantData restaurantData
     return Scaffold(
+      backgroundColor: AppColors.backgroundColor,
       drawer: Drawer(),
       appBar: AppBar(
         title: Text(
@@ -34,7 +38,7 @@ class HomeScreen extends StatelessWidget {
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                      spacing: 8,
+                      spacing: 10,
                       children: List.generate(
                           CategoriesData.listCategories.length, (index) {
                         return CategoryWidget(
@@ -54,12 +58,14 @@ class HomeScreen extends StatelessWidget {
                 Column(
                   spacing: 16,
                   children: [
-                    List.generate(restaurantData.length, (index) {
-                      Restaurant restaurant =
-                          restaurantData.listRestaurant[index];
+                    /* List.generate(restaurantDa.length, (index) {
+                      Restaurant restaurant = restaurantData.listRestaurant[index];
                       return RestaurantWidget(restaurant: restaurant);
                     }),
-                    SizedBox(height: 64,)
+                    */
+                    SizedBox(
+                      height: 64,
+                    )
                   ],
                 )
               ],
@@ -70,4 +76,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-*/

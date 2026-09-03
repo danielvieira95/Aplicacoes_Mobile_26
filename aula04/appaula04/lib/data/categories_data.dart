@@ -1,13 +1,13 @@
 // Cria a classe categorias
 
-abstract class CategoriesData{
-    // Lista do tipo string
+abstract class CategoriesData {
+  // Lista do tipo string
 
-    static List<String> listCategories=[
-        "Petisco",
-        "Principais",
-        "Massas",
-        "Sobremesa",
-        "Bebidas"
-    ];
+  static List<String> listCategories = [
+    "Petiscos",
+    "Principais",
+    "Massas",
+    "Sobremesas",
+    "Bebidas"
+  ];
 }
