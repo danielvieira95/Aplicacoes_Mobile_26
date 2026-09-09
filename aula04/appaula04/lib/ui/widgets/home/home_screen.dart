@@ -1,9 +1,11 @@
 import 'package:appaula04/data/categories_data.dart';
+import 'package:appaula04/data/restaurant_data.dart';
 import 'package:appaula04/model/restaurant.dart';
 import 'package:appaula04/ui/_core/app_colors.dart';
 import 'package:appaula04/ui/widgets/home/widget/category_widget.dart';
 import 'package:appaula04/ui/widgets/home/widget/restaurant_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   // RestaurantData
@@ -11,7 +13,9 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // RestaurantData restaurantData
+    // Cria o restaurantData
+    RestaurantData restaurantData = Provider.of<RestaurantData>(context);
+
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       drawer: Drawer(),
@@ -57,17 +61,16 @@ class HomeScreen extends StatelessWidget {
 
                 Column(
                   spacing: 16,
-                  children: [
-                    /* List.generate(restaurantDa.length, (index) {
-                      Restaurant restaurant = restaurantData.listRestaurant[index];
-                      return RestaurantWidget(restaurant: restaurant);
-                    }),
-                    */
-                    SizedBox(
-                      height: 64,
-                    )
-                  ],
-                )
+                  children: List.generate(restaurantData.listRestaurant.length,
+                      (index) {
+                    Restaurant restaurant =
+                        restaurantData.listRestaurant[index];
+                    return RestaurantWidget(restaurant: restaurant);
+                  }),
+                ),
+                SizedBox(
+                  height: 64,
+                ),
               ],
             ),
           ),
