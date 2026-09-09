@@ -50,7 +50,7 @@ class Restaurant {
         description: map['description'],
         stars: map['stars'],
         distance: map['distance'],
-        categories: map['categories'],
+        categories: List<String>.from(map['categories']),
         dishes:
             List<Dish>.from(map['dishes'].map((dish) => Dish.fromMap(dish))));
   }
