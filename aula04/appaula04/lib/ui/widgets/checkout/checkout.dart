@@ -32,9 +32,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ],
         ),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: SingleChildScrollView(
-            child: Column(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: SingleChildScrollView(
+                child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
@@ -82,40 +82,31 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
 
-                Stack(
-                  alignment: Alignment.centerLeft,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 100,
-                      color: AppColors.fundoCards,
-                    ),
-                    Container(
-                      width: 100,
-                      height: 80,
-                      color: AppColors.fundoCards,
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Image.asset(
-                          'assets/others/visa.png',
-                          fit: BoxFit.fill,
-                        ),
+                Stack(alignment: Alignment.centerLeft, children: [
+                  Container(
+                    width: double.infinity,
+                    height: 100,
+                    color: AppColors.fundoCards,
+                  ),
+                  Container(
+                    width: 100,
+                    height: 80,
+                    color: AppColors.fundoCards,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Image.asset(
+                        'assets/others/visa.png',
+                        fit: BoxFit.fill,
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Positioned(
-                            left: 100,
-                            child: Text(
-                              'Visa Classic',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
-                            ))
-                      ],
-                    )
-                  ],
-                ),
+                  ),
+                  Positioned(
+                      left: 100,
+                      child: Text(
+                        'Visa Classic',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      )),
+                ]),
                 SizedBox(
                   height: 24,
                 ),
@@ -145,8 +136,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ))
               ],
-            ),
-          ),
-        ));
+            ))));
   }
 }
