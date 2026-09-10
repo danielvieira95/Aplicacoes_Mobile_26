@@ -1,6 +1,7 @@
 // importa a biblioteca do flutter material
 
 import 'package:appaula04/ui/widgets/bag_provider.dart';
+import 'package:appaula04/ui/widgets/checkout/checkout.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badges;
@@ -21,7 +22,8 @@ AppBar getAppBar({required BuildContext context, String? title}) {
         ),
         child: IconButton(
             onPressed: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (context)=>Tela c));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CheckoutScreen()));
             },
             icon: Icon(Icons.shopping_basket)),
       )
