@@ -10,7 +10,7 @@ class Prodscreen extends StatefulWidget {
 }
 
 class _ProdscreenState extends State<Prodscreen> {
-  final String baseUrl = "http://10.109.84.8/api/produtos/";
+  final String baseUrl = "http://10.109.84.8:8000/api/produtos/";
 
   @override
   // função que atualiza o status das telas

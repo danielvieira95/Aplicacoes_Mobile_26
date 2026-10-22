@@ -20,7 +20,7 @@ class _CadastroProdutoState extends State<CadastroProduto> {
 
   // Função para fazer o cadastro dos produtos
   _cadastroproduto() async {
-    String url = "http://10.109.84.8/api/produtos/";
+    String url = "http://10.109.84.8:8000/api/produtos/";
 
     // Cria a estrutura da mensagem para cadastro dos produtos
     Map<String, dynamic> prod = {
