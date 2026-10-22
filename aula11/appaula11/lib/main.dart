@@ -1,9 +1,8 @@
+import 'package:appaula11/screens/cadastroprod.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MaterialApp(
-    home: AppAula11(),
-  ));
+  runApp(AppAula11());
 }
 
 class AppAula11 extends StatelessWidget {
@@ -11,6 +10,7 @@ class AppAula11 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return MaterialApp(
+    home: CadastroProduto());
   }
 }
