@@ -41,7 +41,9 @@ class ApiService {
     }
     if (response.statusCode < 200 || response.statusCode >= 300) {
       final message = data is Map<String, dynamic>
-          ? data.values.join('\n')
+          ? data.entries
+              .map((entry) => '${entry.key}: ${entry.value}')
+              .join('\n')
           : 'Erro HTTP ${response.statusCode}.';
       throw ApiException(message, response.statusCode);
     }

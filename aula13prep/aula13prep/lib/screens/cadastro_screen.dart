@@ -21,13 +21,15 @@ class _CadastroScreenState extends State<CadastroScreen> {
     username.dispose();
     email.dispose();
     password.dispose();
+    tel.dispose();
     super.dispose();
   }
 
   Future<void> register() async {
     if (username.text.trim().isEmpty ||
         email.text.trim().isEmpty ||
-        password.text.isEmpty) {
+        password.text.isEmpty ||
+        tel.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Preencha todos os campos.')));
       return;
@@ -37,7 +39,8 @@ class _CadastroScreenState extends State<CadastroScreen> {
       await widget.authService.register(
           username: username.text.trim(),
           email: email.text.trim(),
-          password: password.text);
+          password: password.text,
+          telefone: tel.text.trim());
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Usuário cadastrado com sucesso.')));
@@ -57,6 +60,11 @@ class _CadastroScreenState extends State<CadastroScreen> {
           TextField(
               controller: username,
               decoration: const InputDecoration(labelText: 'Usuário')),
+          const SizedBox(height: 16),
+          TextField(
+              controller: tel,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(labelText: 'Telefone')),
           const SizedBox(height: 16),
           TextField(
               controller: email,

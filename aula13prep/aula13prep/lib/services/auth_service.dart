@@ -20,8 +20,13 @@ class AuthService {
   Future<void> register(
       {required String username,
       required String email,
-      required String password}) async {
-    await ApiService().post('/usuarios/cadastrar/',
-        {'username': username, 'email': email, 'password': password});
+      required String password,
+      required String telefone}) async {
+    await ApiService().post('/usuarios/cadastrar/', {
+      'username': username,
+      'email': email,
+      'password': password,
+      'telefone': telefone
+    });
   }
 }
