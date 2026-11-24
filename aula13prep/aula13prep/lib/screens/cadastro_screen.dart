@@ -11,6 +11,7 @@ class CadastroScreen extends StatefulWidget {
 
 class _CadastroScreenState extends State<CadastroScreen> {
   final username = TextEditingController();
+  final nome = TextEditingController();
   final email = TextEditingController();
   final password = TextEditingController();
   final tel = TextEditingController();
@@ -19,6 +20,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
   @override
   void dispose() {
     username.dispose();
+    nome.dispose();
     email.dispose();
     password.dispose();
     tel.dispose();
@@ -27,6 +29,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
   Future<void> register() async {
     if (username.text.trim().isEmpty ||
+        nome.text.trim().isEmpty ||
         email.text.trim().isEmpty ||
         password.text.isEmpty ||
         tel.text.trim().isEmpty) {
@@ -38,6 +41,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
     try {
       await widget.authService.register(
           username: username.text.trim(),
+          nome: nome.text.trim(),
           email: email.text.trim(),
           password: password.text,
           telefone: tel.text.trim());
@@ -60,6 +64,10 @@ class _CadastroScreenState extends State<CadastroScreen> {
           TextField(
               controller: username,
               decoration: const InputDecoration(labelText: 'Usuário')),
+          const SizedBox(height: 16),
+          TextField(
+              controller: nome,
+              decoration: const InputDecoration(labelText: 'Nome')),
           const SizedBox(height: 16),
           TextField(
               controller: tel,
