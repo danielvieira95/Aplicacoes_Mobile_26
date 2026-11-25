@@ -12,15 +12,43 @@ class ProdutosScreen extends StatefulWidget {
 }
 
 class _ProdutosScreenState extends State<ProdutosScreen> {
-  late Future<dynamic> products;
+  List<Map<String, dynamic>> products = [];
+  bool loadingProducts = true;
+  String? productsError;
   @override
   void initState() {
     super.initState();
-    products = loadProducts();
+    refreshProducts();
   }
 
   Future<dynamic> loadProducts() =>
       ApiService(token: widget.tokenService.accessToken).get('/produtos/');
+
+  Future<void> refreshProducts() async {
+    setState(() {
+      loadingProducts = true;
+      productsError = null;
+    });
+    try {
+      final data = await loadProducts();
+      final list = data is List
+          ? data
+          : data is Map<String, dynamic>
+              ? (data['results'] as List? ?? [])
+              : <dynamic>[];
+      if (!mounted) return;
+      setState(() {
+        products = list.whereType<Map<String, dynamic>>().toList();
+        loadingProducts = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        productsError = error.toString();
+        loadingProducts = false;
+      });
+    }
+  }
 
   Future<void> createProduct() async {
     final name = TextEditingController();
@@ -31,24 +59,28 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
         context: context,
         builder: (context) => AlertDialog(
               title: const Text('Cadastrar produto'),
-              content: Form(
-                  key: formKey,
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    TextFormField(
-                        controller: name,
-                        decoration: const InputDecoration(labelText: 'Nome'),
-                        validator: (v) => v!.isEmpty ? 'Informe o nome' : null),
-                    TextFormField(
-                        controller: price,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'Preço'),
-                        validator: (v) =>
-                            v!.isEmpty ? 'Informe o preço' : null),
-                    TextFormField(
-                        controller: description,
-                        decoration:
-                            const InputDecoration(labelText: 'Descrição')),
-                  ])),
+              content: SingleChildScrollView(
+                  child: Form(
+                      key: formKey,
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        TextFormField(
+                            controller: name,
+                            decoration:
+                                const InputDecoration(labelText: 'Nome'),
+                            validator: (v) =>
+                                v!.isEmpty ? 'Informe o nome' : null),
+                        TextFormField(
+                            controller: price,
+                            keyboardType: TextInputType.number,
+                            decoration:
+                                const InputDecoration(labelText: 'Preço'),
+                            validator: (v) =>
+                                v!.isEmpty ? 'Informe o preço' : null),
+                        TextFormField(
+                            controller: description,
+                            decoration:
+                                const InputDecoration(labelText: 'Descrição')),
+                      ]))),
               actions: [
                 TextButton(
                     onPressed: () => Navigator.pop(context, false),
@@ -74,24 +106,54 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
                     child: const Text('Salvar'))
               ],
             ));
-    name.dispose();
-    price.dispose();
-    description.dispose();
-    if (created == true && mounted) setState(() => products = loadProducts());
+    if (created == true && mounted) await refreshProducts();
   }
 
   Future<void> createOrder(Map<String, dynamic> product) async {
-    final productId = product['id'];
-    if (productId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Produto sem identificador.')));
+    final productName = product['nome'] ?? product['name'];
+    if (productName == null || productName.toString().trim().isEmpty) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Produto sem nome.')));
       return;
     }
+
+    final quantityController = TextEditingController(text: '1');
+    final quantity = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Fazer pedido'),
+        content: TextField(
+          controller: quantityController,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(labelText: 'Quantidade'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final value = int.tryParse(quantityController.text.trim());
+              if (value == null || value <= 0) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Informe uma quantidade válida.')));
+                return;
+              }
+              Navigator.pop(dialogContext, value);
+            },
+            child: const Text('Confirmar'),
+          ),
+        ],
+      ),
+    );
+    if (quantity == null || !mounted) return;
+
     try {
       await ApiService(token: widget.tokenService.accessToken)
           .post('/pedidos/', {
-        'produto': productId,
-        'quantidade': 1,
+        'produto': productName,
+        'quantidade': quantity,
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -102,6 +164,31 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(error.message)));
       }
+    }
+  }
+
+  Future<bool> deleteProduct(Map<String, dynamic> product) async {
+    final productId = product['id'];
+    if (productId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Produto sem identificador.')));
+      return false;
+    }
+
+    try {
+      await ApiService(token: widget.tokenService.accessToken)
+          .delete('/produtos/$productId/');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Produto excluído com sucesso.')));
+      }
+      return true;
+    } on ApiException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.message)));
+      }
+      return false;
     }
   }
 
@@ -124,52 +211,60 @@ class _ProdutosScreenState extends State<ProdutosScreen> {
             onPressed: createProduct,
             icon: const Icon(Icons.add),
             label: const Text('Produto')),
-        body: FutureBuilder<dynamic>(
-            future: products,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(
-                    child:
-                        Text('Erro ao carregar produtos.\n${snapshot.error}'));
-              }
-              final data = snapshot.data;
-              final list = data is List
-                  ? data
-                  : data is Map<String, dynamic>
-                      ? (data['results'] as List? ?? [])
-                      : <dynamic>[];
-              if (list.isEmpty) {
-                return const Center(child: Text('Nenhum produto encontrado.'));
-              }
-              return RefreshIndicator(
-                  onRefresh: () async =>
-                      setState(() => products = loadProducts()),
-                  child: ListView.builder(
-                      padding: const EdgeInsets.all(12),
-                      itemCount: list.length,
-                      itemBuilder: (context, index) {
-                        final product = list[index] as Map<String, dynamic>;
-                        return Card(
-                            child: ListTile(
-                                title: Text(
-                                    '${product['nome'] ?? product['name'] ?? 'Produto'}'),
-                                subtitle: Text(
-                                    '${product['descricao'] ?? product['description'] ?? ''}'),
-                                trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                          'R\$ ${product['preco'] ?? product['price'] ?? '-'}'),
-                                      IconButton(
-                                        tooltip: 'Fazer pedido',
-                                        onPressed: () => createOrder(product),
-                                        icon: const Icon(Icons.shopping_cart),
-                                      ),
-                                    ])));
-                      }));
-            }),
+        body: loadingProducts
+            ? const Center(child: CircularProgressIndicator())
+            : productsError != null
+                ? Center(
+                    child: Text('Erro ao carregar produtos.\n$productsError'))
+                : RefreshIndicator(
+                    onRefresh: refreshProducts,
+                    child: products.isEmpty
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: const [
+                              SizedBox(height: 240),
+                              Center(child: Text('Nenhum produto encontrado.')),
+                            ],
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(12),
+                            itemCount: products.length,
+                            itemBuilder: (context, index) {
+                              final product = products[index];
+                              return Dismissible(
+                                key: ValueKey(product['id'] ?? index),
+                                direction: DismissDirection.endToStart,
+                                confirmDismiss: (_) => deleteProduct(product),
+                                background: Container(
+                                  alignment: Alignment.centerRight,
+                                  padding: const EdgeInsets.only(right: 24),
+                                  color: Colors.red,
+                                  child: const Icon(Icons.delete,
+                                      color: Colors.white),
+                                ),
+                                child: Card(
+                                  child: ListTile(
+                                    title: Text(
+                                        '${product['nome'] ?? product['name'] ?? 'Produto'}'),
+                                    subtitle: Text(
+                                        '${product['descricao'] ?? product['description'] ?? ''}'),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                            'R\$ ${product['preco'] ?? product['price'] ?? '-'}'),
+                                        IconButton(
+                                          tooltip: 'Fazer pedido',
+                                          onPressed: () => createOrder(product),
+                                          icon: const Icon(Icons.shopping_cart),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
       );
 }
